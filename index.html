@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WorkMind — 목표만 말해, 오늘의 할 일은 내가 짜줄게. AI 업무 코치">
+  <title>WorkMind — AI 업무 코치</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       앱 전체 컨테이너 — 각 화면은 <section>, 고유 id
+       동적 데이터는 data-render 컨테이너에 JS가 채움
+  ============================================================ -->
+  <div id="app-root">
+
+    <!-- ========== 화면 1. 온보딩 (/welcome) ========== -->
+    <section id="screen-welcome" aria-labelledby="welcome-title">
+      <header id="welcome-header">
+        <h1 id="welcome-logo">WorkMind</h1>
+        <p id="welcome-title">목표만 말해, 오늘의 할 일은 내가 짜줄게</p>
+      </header>
+
+      <div id="welcome-features">
+        <article id="welcome-feature-decompose"><h2>📌 AI가 목표를 일일 과제로 자동 분해해줘요</h2></article>
+        <article id="welcome-feature-visualize"><h2>📊 업무 진행을 한눈에 시각화해서 보여줘요</h2></article>
+        <article id="welcome-feature-remind"><h2>🔔 적시 알림으로 꾸준한 실행 습관을 만들어줘요</h2></article>
+      </div>
+
+      <div id="welcome-actions">
+        <button type="button" id="welcome-btn-create-goal">🚀 첫 번째 목표 만들기</button>
+        <p id="welcome-restore-hint">이미 데이터가 있나요?</p>
+        <button type="button" id="welcome-btn-restore">📂 Excel 파일로 복원하기</button>
+      </div>
+    </section>
+
+
+    <!-- ========== 화면 2. 투데이 뷰 (/) ========== -->
+    <section id="screen-today" aria-labelledby="today-tasklist-title">
+      <header id="today-header">
+        <h1 id="today-logo">WorkMind</h1>
+        <div id="today-date-nav">
+          <button type="button" id="today-date-prev" aria-label="이전 날짜">‹</button>
+          <time id="today-date"></time>
+          <button type="button" id="today-date-next" aria-label="다음 날짜">›</button>
+          <input type="date" id="today-date-picker" aria-label="날짜 선택">
+          <button type="button" id="today-date-today-btn" hidden>오늘</button>
+        </div>
+      </header>
+
+      <section id="today-summary" aria-label="오늘의 요약"><!-- JS 렌더 --></section>
+
+      <section id="today-tasklist" aria-labelledby="today-tasklist-title">
+        <h2 id="today-tasklist-title">📋 오늘의 할 일</h2>
+        <div id="today-task-list"><!-- JS 렌더: 목표별 과제 그룹 --></div>
+      </section>
+
+      <footer id="today-footer-info"><!-- JS 렌더: 예상시간 / 이월 안내 --></footer>
+
+      <div id="today-empty-state" hidden>
+        <p>아직 목표가 없어요. 첫 번째 목표를 만들어보세요!</p>
+        <button type="button" id="today-empty-create-btn">목표 만들기</button>
+      </div>
+    </section>
+
+
+    <!-- ========== 화면 3. 목표 목록 (/goals) ========== -->
+    <section id="screen-goals" aria-labelledby="goals-title">
+      <header id="goals-header">
+        <h1 id="goals-title">🎯 내 목표</h1>
+        <button type="button" id="goals-btn-add">+ 추가</button>
+      </header>
+
+      <section id="goals-active" aria-labelledby="goals-active-title">
+        <h2 id="goals-active-title">진행 중</h2>
+        <ul id="goals-active-list"><!-- JS 렌더 --></ul>
+      </section>
+
+      <section id="goals-completed" aria-labelledby="goals-completed-title">
+        <h2 id="goals-completed-title">완료됨</h2>
+        <ul id="goals-completed-list"><!-- JS 렌더 --></ul>
+      </section>
+    </section>
+
+
+    <!-- ========== 화면 4. 새 목표 만들기 (/goals/new) ========== -->
+    <section id="screen-goal-new" aria-labelledby="goal-new-title">
+      <header id="goal-new-header">
+        <button type="button" id="goal-new-btn-back">← 뒤로</button>
+        <h1 id="goal-new-title">새 목표 만들기</h1>
+      </header>
+
+      <form id="goal-new-form">
+        <div class="form-field" id="field-goal-name">
+          <label for="input-goal-name">목표 *</label>
+          <input type="text" id="input-goal-name" name="goalName" placeholder="예: 신규 프로젝트 런칭" required>
+        </div>
+
+        <fieldset class="form-field" id="field-goal-category">
+          <legend>카테고리</legend>
+          <div id="goal-category-chips" class="chip-group" role="radiogroup">
+            <button type="button" class="chip" data-category="language">업무</button>
+            <button type="button" class="chip" data-category="certificate">커리어</button>
+            <button type="button" class="chip" data-category="coding">사이드프로젝트</button>
+            <button type="button" class="chip" data-category="etc">기타</button>
+          </div>
+        </fieldset>
+
+        <div class="form-field" id="field-goal-level">
+          <label for="input-goal-level">현재 진행 상황</label>
+          <input type="text" id="input-goal-level" name="goalLevel" placeholder="예: 기획안 초안 완료 (2주 전)">
+        </div>
+
+        <fieldset class="form-field" id="field-goal-period">
+          <legend>목표 기간 *</legend>
+          <label for="input-goal-start">시작일</label>
+          <input type="date" id="input-goal-start" name="goalStart" required>
+          <label for="input-goal-end">종료일</label>
+          <input type="date" id="input-goal-end" name="goalEnd" required>
+        </fieldset>
+
+        <fieldset class="form-field" id="field-goal-dailytime">
+          <legend>하루 가용 시간 *</legend>
+          <div id="goal-dailytime-chips" class="chip-group" role="radiogroup">
+            <button type="button" class="chip" data-time="30">30분</button>
+            <button type="button" class="chip" data-time="60">1시간</button>
+            <button type="button" class="chip" data-time="120">2시간</button>
+            <button type="button" class="chip" data-time="180">3시간+</button>
+          </div>
+        </fieldset>
+
+        <div class="form-field" id="field-goal-memo">
+          <label for="input-goal-memo">추가 메모 (선택)</label>
+          <textarea id="input-goal-memo" name="goalMemo" placeholder="예: 주말에는 3시간 가능"></textarea>
+        </div>
+
+        <p class="form-error" id="goal-new-error" hidden></p>
+        <button type="submit" id="goal-new-btn-generate">🤖 AI 실행 계획 생성하기</button>
+      </form>
+    </section>
+
+
+    <!-- ========== 화면 5. 목표 상세 (/goals/:id) ========== -->
+    <section id="screen-goal-detail" aria-labelledby="goal-detail-title">
+      <header id="goal-detail-header">
+        <button type="button" id="goal-detail-btn-back">← 목표 목록</button>
+        <h1 id="goal-detail-title"></h1>
+        <button type="button" id="goal-detail-btn-edit" aria-label="목표 수정">✏️</button>
+      </header>
+
+      <section id="goal-detail-info" aria-label="목표 정보"><!-- JS 렌더 --></section>
+
+      <nav id="goal-detail-tabs" aria-label="과제 필터">
+        <button type="button" class="goal-detail-tab is-active" data-filter="today">오늘</button>
+        <button type="button" class="goal-detail-tab" data-filter="week">이번주</button>
+        <button type="button" class="goal-detail-tab" data-filter="all">전체</button>
+        <button type="button" id="goal-detail-btn-regenerate">🤖 재생성</button>
+      </nav>
+
+      <section id="goal-detail-tasks" aria-label="과제 목록"><!-- JS 렌더: 날짜별 --></section>
+    </section>
+
+
+    <!-- ========== 화면 6. 목표 수정 (/goals/:id/edit) ========== -->
+    <section id="screen-goal-edit" aria-labelledby="goal-edit-title">
+      <header id="goal-edit-header">
+        <button type="button" id="goal-edit-btn-back">← 뒤로</button>
+        <h1 id="goal-edit-title">목표 수정</h1>
+      </header>
+
+      <form id="goal-edit-form">
+        <div class="form-field">
+          <label for="edit-goal-name">목표 *</label>
+          <input type="text" id="edit-goal-name" name="goalName" required>
+        </div>
+
+        <fieldset class="form-field">
+          <legend>카테고리</legend>
+          <div id="edit-category-chips" class="chip-group" role="radiogroup">
+            <button type="button" class="chip" data-category="language">업무</button>
+            <button type="button" class="chip" data-category="certificate">커리어</button>
+            <button type="button" class="chip" data-category="coding">사이드프로젝트</button>
+            <button type="button" class="chip" data-category="etc">기타</button>
+          </div>
+        </fieldset>
+
+        <div class="form-field">
+          <label for="edit-goal-level">현재 진행 상황</label>
+          <input type="text" id="edit-goal-level" name="goalLevel">
+        </div>
+
+        <fieldset class="form-field">
+          <legend>목표 기간 *</legend>
+          <label for="edit-goal-start">시작일</label>
+          <input type="date" id="edit-goal-start" name="goalStart" required>
+          <label for="edit-goal-end">종료일</label>
+          <input type="date" id="edit-goal-end" name="goalEnd" required>
+        </fieldset>
+
+        <fieldset class="form-field">
+          <legend>하루 가용 시간 *</legend>
+          <div id="edit-dailytime-chips" class="chip-group" role="radiogroup">
+            <button type="button" class="chip" data-time="30">30분</button>
+            <button type="button" class="chip" data-time="60">1시간</button>
+            <button type="button" class="chip" data-time="120">2시간</button>
+            <button type="button" class="chip" data-time="180">3시간+</button>
+          </div>
+        </fieldset>
+
+        <div class="form-field">
+          <label for="edit-goal-memo">추가 메모 (선택)</label>
+          <textarea id="edit-goal-memo" name="goalMemo"></textarea>
+        </div>
+
+        <div id="goal-edit-actions">
+          <button type="submit" id="goal-edit-btn-save">💾 변경사항 저장</button>
+          <button type="button" id="goal-edit-btn-save-regenerate">🤖 저장 + AI 계획 재생성</button>
+          <button type="button" id="goal-edit-btn-delete">🗑️ 이 목표 삭제하기</button>
+        </div>
+      </form>
+    </section>
+
+
+    <!-- ========== 화면 7. 대시보드 (/dashboard) ========== -->
+    <section id="screen-dashboard" aria-labelledby="dashboard-title">
+      <header id="dashboard-header"><h1 id="dashboard-title">📊 업무 대시보드</h1></header>
+
+      <section id="dashboard-metrics" aria-label="핵심 지표"><!-- JS 렌더 --></section>
+
+      <section id="dashboard-heatmap" aria-labelledby="dashboard-heatmap-title">
+        <h2 id="dashboard-heatmap-title">캘린더 히트맵</h2>
+        <div id="dashboard-heatmap-grid"><!-- JS 렌더 --></div>
+        <p id="dashboard-heatmap-legend">□ 미완료　░ 1~50%　■ 51~100%</p>
+      </section>
+
+      <section id="dashboard-goal-progress" aria-labelledby="dashboard-goal-progress-title">
+        <h2 id="dashboard-goal-progress-title">목표별 진도율</h2>
+        <ul id="dashboard-goal-progress-list"><!-- JS 렌더 --></ul>
+      </section>
+
+      <section id="dashboard-weekly-trend" aria-labelledby="dashboard-weekly-trend-title">
+        <h2 id="dashboard-weekly-trend-title">주간 완료율 추이</h2>
+        <figure id="dashboard-weekly-chart"><!-- JS 렌더: SVG --></figure>
+      </section>
+
+      <div id="dashboard-empty-state" hidden>
+        <p>아직 완료 기록이 없어요. 오늘 첫 과제를 완료해보세요!</p>
+      </div>
+    </section>
+
+
+    <!-- ========== 화면 8. 설정 (/settings) ========== -->
+    <section id="screen-settings" aria-labelledby="settings-title">
+      <header id="settings-header"><h1 id="settings-title">⚙ 설정</h1></header>
+
+      <section id="settings-notification" aria-labelledby="settings-notification-title">
+        <h2 id="settings-notification-title">알림 설정</h2>
+        <div class="settings-row" id="setting-study-alarm">
+          <label for="toggle-study-alarm">작업 알림</label>
+          <input type="checkbox" id="toggle-study-alarm" role="switch">
+        </div>
+        <div class="settings-row" id="setting-alarm-time">
+          <label for="select-alarm-time">알림 시간</label>
+          <input type="time" id="select-alarm-time" value="19:00" step="1800">
+        </div>
+        <fieldset class="settings-row" id="setting-alarm-days">
+          <legend>알림 요일</legend>
+          <label><input type="checkbox" class="alarm-day" value="1" checked>월</label>
+          <label><input type="checkbox" class="alarm-day" value="2" checked>화</label>
+          <label><input type="checkbox" class="alarm-day" value="3" checked>수</label>
+          <label><input type="checkbox" class="alarm-day" value="4" checked>목</label>
+          <label><input type="checkbox" class="alarm-day" value="5" checked>금</label>
+          <label><input type="checkbox" class="alarm-day" value="6">토</label>
+          <label><input type="checkbox" class="alarm-day" value="0">일</label>
+        </fieldset>
+        <div class="settings-row" id="setting-incomplete-remind">
+          <label for="toggle-incomplete-remind">미완료 리마인드</label>
+          <input type="checkbox" id="toggle-incomplete-remind" role="switch">
+        </div>
+        <div class="settings-row" id="setting-remind-time">
+          <label for="select-remind-time">리마인드 시간</label>
+          <input type="time" id="select-remind-time" value="22:00" step="1800">
+        </div>
+      </section>
+
+      <section id="settings-data" aria-labelledby="settings-data-title">
+        <h2 id="settings-data-title">데이터 관리</h2>
+        <button type="button" id="settings-btn-export">📥 데이터 내보내기 (Excel)</button>
+        <button type="button" id="settings-btn-import">📤 데이터 가져오기 (Excel)</button>
+        <input type="file" id="settings-import-file" accept=".xlsx,.xls" hidden>
+        <button type="button" id="settings-btn-reset">🗑️ 모든 데이터 초기화</button>
+      </section>
+
+      <section id="settings-about" aria-labelledby="settings-about-title">
+        <h2 id="settings-about-title">앱 정보</h2>
+        <p id="settings-version">버전: v1.0.0</p>
+        <p id="settings-maker">만든 사람: WorkMind Team</p>
+      </section>
+    </section>
+
+  </div><!-- /#app-root -->
+
+
+  <!-- ========== 글로벌 네비게이션 (공통) ========== -->
+  <nav id="global-nav" aria-label="주 메뉴">
+    <a href="#screen-today" id="nav-today">🏠 투데이</a>
+    <a href="#screen-goals" id="nav-goals">🎯 목표</a>
+    <a href="#screen-dashboard" id="nav-dashboard">📊 통계</a>
+    <a href="#screen-settings" id="nav-settings">⚙ 설정</a>
+  </nav>
+
+
+  <!-- ========== 오버레이 / 모달 ========== -->
+
+  <!-- 화면 9. 축하 모달 -->
+  <dialog id="modal-celebration" aria-labelledby="celebration-title">
+    <h2 id="celebration-title">🎉 축하해요!</h2>
+    <p id="celebration-message">오늘 할 일을 모두 완료했어요!</p>
+    <p id="celebration-streak"></p>
+    <p id="celebration-count"></p>
+    <div id="celebration-actions">
+      <button type="button" id="celebration-btn-dashboard">📊 대시보드 보기</button>
+      <button type="button" id="celebration-btn-close">닫기</button>
+    </div>
+  </dialog>
+
+  <!-- 화면 10. AI 로딩 -->
+  <dialog id="modal-ai-loading" aria-labelledby="ai-loading-title">
+    <div id="ai-loading-spinner" aria-hidden="true">🤖</div>
+    <p id="ai-loading-title">AI가 맞춤 실행 계획을 만들고 있어요...</p>
+    <progress id="ai-loading-progress" max="100" value="0"></progress>
+    <p id="ai-loading-tip"></p>
+    <div id="ai-loading-error" hidden>
+      <p>계획 생성에 실패했어요. 다시 시도해주세요.</p>
+      <button type="button" id="ai-loading-btn-retry">다시 시도</button>
+    </div>
+  </dialog>
+
+  <!-- 화면 11. 목표 삭제 확인 -->
+  <dialog id="modal-confirm-delete" aria-labelledby="confirm-delete-title">
+    <h2 id="confirm-delete-title">목표를 삭제할까요?</h2>
+    <p id="confirm-delete-message">이 목표와 관련된 모든 과제와 기록이 함께 삭제되며, 되돌릴 수 없어요.</p>
+    <div id="confirm-delete-actions">
+      <button type="button" id="confirm-delete-btn-confirm">🗑️ 삭제하기</button>
+      <button type="button" id="confirm-delete-btn-cancel">취소</button>
+    </div>
+  </dialog>
+
+  <!-- SheetJS (Excel 내보내기/가져오기) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

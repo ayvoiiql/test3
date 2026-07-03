@@ -1,0 +1,1031 @@
+/* ============================================================
+   WorkMind — styles.css
+   기준 디자인: DESIGN-apple.md (Apple design language)
+   - 단일 강조색 Action Blue(#0066cc)
+   - SF Pro Display/Text → 대체: system-ui / Inter
+   - pill CTA, 최소 크롬(그림자 없음), hairline 구분선
+   - 모바일 퍼스트 (PRD 4-3: 360px ~ 1440px)
+============================================================ */
+
+/* ---------- 1. 디자인 토큰 (CSS Variables) ---------- */
+:root {
+  /* Colors — Brand & Accent */
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+
+  /* Colors — Text */
+  --color-ink: #1d1d1f;
+  --color-body: #1d1d1f;
+  --color-body-on-dark: #ffffff;
+  --color-body-muted: #cccccc;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #7a7a7a;
+
+  /* Colors — Surface */
+  --color-canvas: #ffffff;
+  --color-canvas-parchment: #f5f5f7;
+  --color-surface-pearl: #fafafc;
+  --color-surface-tile-1: #272729;
+  --color-surface-black: #000000;
+
+  /* Colors — Hairlines */
+  --color-divider-soft: #f0f0f0;
+  --color-hairline: #e0e0e0;
+
+  /* Typography */
+  --font-display: "SF Pro Display", system-ui, -apple-system, "Inter", sans-serif;
+  --font-text: "SF Pro Text", system-ui, -apple-system, "Inter", sans-serif;
+
+  /* Rounded */
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+
+  /* Spacing (base 8px) */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 17px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+  --space-section: 80px;
+
+  /* 유일한 시스템 그림자 — 제품/카드가 표면 위에 놓일 때만 (Apple 철학상 절제) */
+  --shadow-product: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
+
+  /* 하단 탭바 높이 (모바일) */
+  --tabbar-height: 64px;
+  --sidebar-width: 240px;
+}
+
+/* ---------- 2. Reset & Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-text);
+  /* Body: 17px / 400 / 1.47 / -0.374px (Apple 규칙: 16px 아님) */
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-body);
+  background-color: var(--color-canvas-parchment);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-text);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-text);
+  font-size: 17px;
+  color: var(--color-ink);
+}
+
+/* 시스템 전역 마이크로 인터랙션: 눌림 시 scale(0.95) */
+button:active {
+  transform: scale(0.95);
+}
+
+/* 키보드 포커스 링 (접근성) */
+:focus-visible {
+  outline: 2px solid var(--color-primary-focus);
+  outline-offset: 2px;
+}
+
+/* ---------- 3. 앱 레이아웃 셸 ---------- */
+#app-root {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+  /* 하단 탭바에 가리지 않도록 여백 */
+  padding-bottom: calc(var(--tabbar-height) + var(--space-xxl));
+}
+
+/* 화면 = 섹션. 카드형 표면(흰 캔버스)으로 분리 */
+#app-root > section {
+  background-color: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+/* 라우팅: 활성 화면만 표시 (JS가 .is-active 토글) */
+#app-root > section {
+  display: none;
+}
+#app-root > section.is-active {
+  display: block;
+}
+
+/* 화면 상단 헤더 공통 */
+#app-root > section > header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-divider-soft);
+}
+
+#app-root > section > header h1 {
+  /* display-md 계열 */
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.374px;
+  flex: 1;
+}
+
+/* 화면 내부 하위 섹션 제목 */
+#app-root section h2 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.231px;
+  margin-bottom: var(--space-sm);
+}
+
+#app-root section h3 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.374px;
+}
+
+/* ---------- 4. 버튼 그래머 ---------- */
+
+/* 기본 액션: 파란 pill (button-primary) */
+#welcome-btn-create-goal,
+#goal-new-btn-generate,
+#goal-edit-btn-save-regenerate,
+#celebration-btn-dashboard,
+#today-empty-create-btn,
+#goals-btn-add {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-size: 17px;
+  border-radius: var(--radius-pill);
+  padding: 11px 22px;
+}
+
+/* 고스트 pill (button-secondary-pill) */
+#welcome-btn-restore,
+#goal-edit-btn-save,
+#celebration-btn-close,
+#ai-loading-btn-retry {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  padding: 11px 22px;
+  font-size: 17px;
+}
+
+/* 컴팩트 유틸 rect (button-dark-utility) */
+#goal-new-btn-back,
+#goal-detail-btn-back,
+#goal-edit-btn-back {
+  background-color: var(--color-ink);
+  color: var(--color-body-on-dark);
+  font-size: 14px;
+  letter-spacing: -0.224px;
+  border-radius: var(--radius-sm);
+  padding: 8px 15px;
+}
+
+/* 삭제(위험) 액션 — 텍스트만 빨강, 최하단 배치 */
+#goal-edit-btn-delete,
+#settings-btn-reset {
+  color: #cc0000;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  padding: var(--space-sm);
+  text-align: left;
+}
+
+/* ---------- 5. 글로벌 네비게이션 ---------- */
+/* 모바일: 하단 고정 탭바 (true black — global-nav) */
+#global-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--tabbar-height);
+  background-color: #1e40ff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+#global-nav a {
+  color: var(--color-body-on-dark);
+  font-size: 12px;
+  letter-spacing: -0.12px;
+  text-align: center;
+  flex: 1;
+  padding: var(--space-xs);
+  /* 터치 타깃 최소 44px 확보 */
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+#global-nav a:hover,
+#global-nav a:focus-visible {
+  opacity: 1;
+}
+
+/* 현재 화면에 해당하는 탭 강조 */
+#global-nav a.is-active {
+  opacity: 1;
+  color: var(--color-primary-on-dark);
+}
+
+/* ---------- 6. 온보딩 (screen-welcome) ---------- */
+#screen-welcome {
+  text-align: center;
+}
+
+#welcome-logo {
+  font-size: 40px;
+  line-height: 1.1;
+  margin-bottom: var(--space-xs);
+}
+
+#welcome-title {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.231px;
+  color: var(--color-ink-muted-80);
+  margin-bottom: var(--space-xl);
+}
+
+#welcome-features {
+  display: grid;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+#welcome-features article {
+  background-color: var(--color-canvas-parchment);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+#welcome-features h2 {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+  margin: 0;
+  color: var(--color-ink);
+}
+
+#welcome-actions {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+#welcome-restore-hint {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+  margin-top: var(--space-sm);
+}
+
+/* ---------- 7. 투데이 뷰 (screen-today) ---------- */
+#today-date-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+#today-date {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+  min-width: 118px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#today-date-prev,
+#today-date-next {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  padding: var(--space-xs);
+  min-width: 32px;
+  min-height: 32px;
+  color: var(--color-ink-muted-48);
+}
+
+#today-date-prev:hover,
+#today-date-next:hover {
+  color: var(--color-ink);
+}
+
+#today-date-picker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#today-date-today-btn {
+  font-size: 12px;
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  padding: var(--space-xxs) var(--space-sm);
+  margin-left: auto;
+}
+
+.today-empty-day {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+  text-align: center;
+  padding: var(--space-lg) 0;
+}
+
+/* 오늘의 요약 카드 */
+#today-summary {
+  background-color: var(--color-canvas-parchment);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+#today-summary-streak,
+#today-summary-count {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+#today-summary-progress {
+  grid-column: 1 / 2;
+}
+
+#today-summary-percent {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+}
+
+/* 진행바 (progress) 공통 스타일 */
+progress {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border: none;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+progress::-webkit-progress-bar {
+  background-color: var(--color-divider-soft);
+  border-radius: var(--radius-pill);
+}
+progress::-webkit-progress-value {
+  background-color: var(--color-primary);
+  border-radius: var(--radius-pill);
+}
+progress::-moz-progress-bar {
+  background-color: var(--color-primary);
+  border-radius: var(--radius-pill);
+}
+
+/* 목표별 그룹 */
+.today-goal-group {
+  margin-bottom: var(--space-lg);
+}
+
+.today-goal-name {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  padding: var(--space-xxs) var(--space-sm);
+  background-color: var(--color-canvas-parchment);
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-sm);
+}
+
+/* 과제 항목 공통 (투데이 / 목표상세) */
+.today-task-item,
+.detail-task-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-divider-soft);
+}
+
+.today-task-item input[type="checkbox"],
+.detail-task-item input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.task-text {
+  flex: 1;
+  font-size: 17px;
+}
+
+/* 완료된 과제: 취소선 + 흐림 */
+.today-task-item input:checked ~ .task-text,
+.detail-task-item input:checked ~ .task-text {
+  text-decoration: line-through;
+  color: var(--color-ink-muted-48);
+}
+
+.task-time {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+  flex-shrink: 0;
+}
+
+#today-footer-info {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-divider-soft);
+}
+
+#today-estimated-time {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#today-carryover-notice {
+  font-size: 14px;
+  color: #b45309;
+  margin-top: var(--space-xs);
+}
+
+#today-empty-state {
+  text-align: center;
+  padding: var(--space-xxl) 0;
+}
+
+/* ---------- 8. 목표 목록 (screen-goals) ---------- */
+#goals-active-list,
+#goals-completed-list {
+  display: grid;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.goal-card {
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.goal-card-name {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.goal-card-dday {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  justify-self: end;
+}
+
+.goal-card-progress {
+  grid-column: 1 / -1;
+}
+
+.goal-card-percent {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+  justify-self: end;
+}
+
+.goal-card-remaining {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+}
+
+.goal-card-done {
+  opacity: 0.6;
+}
+
+/* ---------- 9. 목표 생성 / 수정 폼 ---------- */
+#goal-new-form,
+#goal-edit-form {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.form-field {
+  display: grid;
+  gap: var(--space-xs);
+  border: none;
+}
+
+.form-field label,
+.form-field legend {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink-muted-80);
+}
+
+.form-field input[type="text"],
+.form-field input[type="date"],
+.form-field input[type="time"],
+.form-field textarea {
+  width: 100%;
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 12px var(--space-md);
+  font-size: 17px;
+}
+
+.form-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* 칩(Chip) — 카테고리 / 가용시간 (pill 그래머) */
+#goal-category-chips,
+#goal-dailytime-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.chip {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-pill);
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* 선택 상태 (추후 JS에서 .is-selected 토글) */
+.chip.is-selected {
+  border: 2px solid var(--color-primary-focus);
+  color: var(--color-primary);
+}
+
+#goal-edit-actions {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+/* ---------- 10. 목표 상세 (screen-goal-detail) ---------- */
+#goal-detail-info {
+  background-color: var(--color-canvas-parchment);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  display: grid;
+  gap: var(--space-xs);
+}
+
+#goal-detail-dday {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+#goal-detail-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.goal-detail-tab {
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-md);
+  font-size: 14px;
+}
+
+.goal-detail-tab.is-active {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+#goal-detail-btn-regenerate {
+  margin-left: auto;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.goal-detail-day-group {
+  margin-bottom: var(--space-lg);
+}
+
+.goal-detail-day-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink-muted-48);
+  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.goal-detail-btn-add-task {
+  margin-top: var(--space-sm);
+  color: var(--color-primary);
+  font-size: 14px;
+}
+
+/* ---------- 11. 대시보드 (screen-dashboard) ---------- */
+#dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.dashboard-metric {
+  background-color: var(--color-canvas-parchment);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  text-align: center;
+  font-size: 14px;
+}
+
+.dashboard-metric .value {
+  display: block;
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-top: var(--space-xxs);
+}
+
+#screen-dashboard > section {
+  margin-bottom: var(--space-xl);
+}
+
+/* 히트맵 자리 (셀은 추후 JS 렌더링) */
+#dashboard-heatmap-grid {
+  min-height: 120px;
+  background-color: var(--color-canvas-parchment);
+  border-radius: var(--radius-md);
+}
+
+#dashboard-heatmap-legend {
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+  margin-top: var(--space-xs);
+}
+
+#dashboard-goal-progress-list {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.dashboard-goal-progress-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-xxs);
+}
+
+.dashboard-goal-progress-item progress {
+  grid-column: 1 / -1;
+}
+
+.dashboard-goal-progress-item .percent {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+  justify-self: end;
+}
+
+/* 주간 추이 차트 자리 */
+#dashboard-weekly-chart {
+  min-height: 160px;
+  background-color: var(--color-canvas-parchment);
+  border-radius: var(--radius-md);
+}
+
+/* ---------- 12. 설정 (screen-settings) ---------- */
+#screen-settings > section {
+  margin-bottom: var(--space-xl);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-divider-soft);
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.settings-row label {
+  font-size: 17px;
+}
+
+/* 요일 다중 선택 */
+#setting-alarm-days {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+#setting-alarm-days label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  font-size: 14px;
+}
+
+/* 토글 스위치 */
+input[role="switch"] {
+  width: 44px;
+  height: 26px;
+  accent-color: var(--color-primary);
+}
+
+#settings-data {
+  display: grid;
+}
+
+#settings-data h2 {
+  grid-column: 1 / -1;
+}
+
+#settings-btn-export,
+#settings-btn-import {
+  text-align: left;
+  padding: var(--space-md) 0;
+  font-size: 17px;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-divider-soft);
+}
+
+#settings-version,
+#settings-maker {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+}
+
+/* ---------- 13. 모달 / 오버레이 ---------- */
+dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  max-width: 360px;
+  width: calc(100% - var(--space-xl));
+  text-align: center;
+  box-shadow: var(--shadow-product);
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#modal-celebration h2 {
+  font-size: 34px;
+  margin-bottom: var(--space-md);
+}
+
+#celebration-actions {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+#modal-ai-loading #ai-loading-spinner {
+  font-size: 40px;
+  margin-bottom: var(--space-md);
+}
+
+#ai-loading-title {
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+#ai-loading-tip {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+  margin-top: var(--space-md);
+}
+
+#confirm-delete-title {
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+#confirm-delete-message {
+  font-size: 14px;
+  color: var(--color-ink-muted-48);
+}
+
+#confirm-delete-actions {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+#confirm-delete-btn-confirm {
+  background-color: #cc0000;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 11px 22px;
+  font-size: 17px;
+}
+
+#confirm-delete-btn-cancel {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  padding: 11px 22px;
+  font-size: 17px;
+}
+
+/* 구조 확인 단계: dialog를 강제로 보이게 하지 않음(기본 닫힘).
+   미리보기가 필요하면 아래 주석 해제
+   dialog { display: block; position: static; } */
+
+/* ---------- 13.5 기능 렌더 요소 (JS 생성) ---------- */
+
+/* 목표 식별 색상 점 (색상 태그) */
+.goal-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: var(--space-xs);
+  vertical-align: middle;
+}
+
+/* 완료 과제 취소선 (JS가 .is-done 토글) */
+.task-text.is-done {
+  text-decoration: line-through;
+  color: var(--color-ink-muted-48);
+}
+
+/* 이월 배지 */
+.carry-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #b45309;
+  background: #fff7ed;
+  border-radius: var(--radius-xs);
+  padding: 1px 6px;
+  margin-left: var(--space-xxs);
+}
+
+/* 빈 상태 안내 */
+.empty-hint {
+  color: var(--color-ink-muted-48);
+  font-size: 14px;
+  padding: var(--space-md) 0;
+}
+
+/* 폼 에러 */
+.form-error {
+  color: #cc0000;
+  font-size: 14px;
+}
+
+.chip-group { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+
+/* 히트맵 (GitHub 잔디 스타일) */
+#dashboard-heatmap-grid {
+  min-height: auto;
+  background: transparent;
+  overflow-x: auto;
+}
+.heat-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  max-width: 320px;
+  margin-bottom: 4px;
+}
+.heat-weekdays span {
+  font-size: 10px;
+  color: var(--color-ink-muted-48);
+  text-align: center;
+}
+.heat-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  max-width: 320px;
+}
+.heat-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-xs);
+  background: var(--color-divider-soft);
+}
+.heat-cell.heat-1 { background: #a9c9f0; }   /* 1~50% */
+.heat-cell.heat-2 { background: var(--color-primary); } /* 51~100% */
+.heat-cell.heat-future { opacity: 0.35; }
+
+/* 대시보드 지표 값 줄바꿈 */
+.dashboard-metric .value { line-height: 1.2; }
+
+/* ---------- 14. 반응형 (데스크톱: 좌측 사이드바) ---------- */
+@media (min-width: 834px) {
+  body {
+    padding-left: var(--sidebar-width);
+  }
+
+  #app-root {
+    max-width: 900px;
+    padding-bottom: var(--space-xxl);
+  }
+
+  /* 하단 탭바 → 좌측 세로 사이드바 전환 */
+  #global-nav {
+    top: 0;
+    bottom: 0;
+    right: auto;
+    width: var(--sidebar-width);
+    height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: var(--space-xs);
+    padding-top: var(--space-xxl);
+  }
+
+  #global-nav a {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-sm);
+    width: 100%;
+    font-size: 17px;
+    padding: var(--space-sm) var(--space-lg);
+    text-align: left;
+  }
+}
+
+/* 소형 폰(≤419px): 타이포/패딩 축소 */
+@media (max-width: 419px) {
+  #welcome-logo { font-size: 34px; }
+  #app-root { padding: var(--space-md) var(--space-sm); }
+  #app-root > section { padding: var(--space-md); }
+  #dashboard-metrics { grid-template-columns: 1fr; }
+}
